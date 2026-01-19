@@ -54,11 +54,11 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_stats">
          <attribute name="title">
-          <string>Tab 1</string>
+          <string>Stats</string>
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
@@ -72,7 +72,7 @@
         </widget>
         <widget class="QWidget" name="tab_log">
          <attribute name="title">
-          <string>Tab 2</string>
+          <string>Log</string>
          </attribute>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
