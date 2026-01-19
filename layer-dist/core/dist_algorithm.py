@@ -79,10 +79,7 @@ class CalculateNearestFeatures(QObject):
         for feat_a in self.layer_a.getFeatures():
             geom_a = feat_a.geometry()
 
-            if self.layer_a.geometryType() == QgsWkbTypes.PolygonGeometry:
-                point_geom_a = geom_a.centroid()
-            else:
-                point_geom_a = geom_a
+            point_geom_a = self.get_point_geometry(geom_a)
 
             nearest_id = layer_b_idx.nearestNeighbor(point_geom_a, 1)[0]
 
