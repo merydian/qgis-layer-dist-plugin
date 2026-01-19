@@ -98,6 +98,23 @@ class CalculateNearestFeatures:
             return geometry
         elif geometry.type() == QgsWkbTypes.PolygonGeometry:
             return geometry.centroid()
+    
+    def create_dist_geometries_layer(self, attributes):
+        uri = f"linestring?crs=epsg:{self.layer_a.crs().postgisSrid()}"
+        layer_out = QgsVectorLayer(uri, "nearest_features_lines", "memory")
+        
+        for attr in attributes:
+            point_geom_a = self.get_point_geometry(attr.geom_a).asPoint()
+            point_geom_b = self.get_point_geometry(attr.geom_b).asPoint()
+            geom = QgsGeometry.fromPolylineXY([point_geom_a, point_geom_b])
+
+            feat = QgsFeature()
+            feat.setGeometry(geom)
+            layer_out.dataProvider().addFeatures([feat])
+        
+        layer_out.updateFields()
+    
+        return layer_out
 
     def run(self):
         start_time = time.time()
