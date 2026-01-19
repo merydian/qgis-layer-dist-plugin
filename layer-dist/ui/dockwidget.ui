@@ -52,39 +52,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QTabWidget" name="tabWidget">
-        <property name="currentIndex">
-         <number>0</number>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Log</string>
         </property>
-        <widget class="QWidget" name="tab_stats">
-         <attribute name="title">
-          <string>Stats</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <item>
-           <layout class="QVBoxLayout" name="layout_stats">
-            <item>
-             <widget class="QTextBrowser" name="text_stats"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="tab_log">
-         <attribute name="title">
-          <string>Log</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_6">
-          <item>
-           <layout class="QVBoxLayout" name="layout_log">
-            <item>
-             <widget class="QTextBrowser" name="text_log"/>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
        </widget>
+      </item>
+      <item>
+       <widget class="QTextBrowser" name="text_log"/>
       </item>
      </layout>
     </item>
