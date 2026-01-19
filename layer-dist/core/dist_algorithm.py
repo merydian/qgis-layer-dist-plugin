@@ -74,26 +74,34 @@ class CalculateNearestFeatures(QObject):
             self.layer_b.getFeatures(), flags=QgsSpatialIndex.FlagStoreFeatureGeometries
         )
 
-        attributes = []
-
-        for feat_a in self.layer_a.getFeatures():
-            geom_a = feat_a.geometry()
-
-            point_geom_a = self.get_point_geometry(geom_a)
-
-            nearest_id = layer_b_idx.nearestNeighbor(point_geom_a, 1)[0]
-
-            feat_b = self.layer_b.getFeature(nearest_id)
-            geom_b = feat_b.geometry()
-
-            dist = point_geom_a.distance(geom_b)
-
-            geom_b_nearest = self.layer_b.getFeature(nearest_id).geometry()
-
-            attr = DistanceAttribute(geom_a, geom_b_nearest, nearest_id, dist)
-            attributes.append(attr)
+        attributes = [ self.get_nearest_feature_optimized(feat_a, layer_b_idx) for feat_a in self.layer_a.getFeatures() ]            
 
         return attributes
+
+    def get_nearest_feature_optimized(self, feat_a, layer_b_idx) -> DistanceAttribute:
+        """
+        Gets the nearest feature from layer B for a given feature from layer A using the spatial index.
+        
+        :param self: Description
+        :param feat_a: Description
+        :param layer_b_idx: Description
+        :return: Description
+        :rtype: DistanceAttribute
+        """
+        geom_a = feat_a.geometry()
+
+        point_geom_a = self.get_point_geometry(geom_a)
+
+        nearest_id = layer_b_idx.nearestNeighbor(point_geom_a, 1)[0]
+
+        feat_b = self.layer_b.getFeature(nearest_id)
+        geom_b = feat_b.geometry()
+
+        dist = point_geom_a.distance(geom_b)
+
+        geom_b_nearest = self.layer_b.getFeature(nearest_id).geometry()
+
+        return DistanceAttribute(geom_a, geom_b_nearest, nearest_id, dist)
 
     def create_distances_layer(self, attributes) -> QgsVectorLayer:
         """
