@@ -1,19 +1,20 @@
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # Copyright (C) 2015 Martin Dobias
-#-----------------------------------------------------------
+# -----------------------------------------------------------
 # Licensed under the terms of GNU GPL 2
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-#---------------------------------------------------------------------
+# ---------------------------------------------------------------------
 
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtCore import Qt
 from .gui.dock import LayerDistDockWidget
 from qgis.core import QgsProject
 from .core.dist_algorithm import CalculateNearestFeatures
+
 
 def classFactory(iface):
     return MinimalPlugin(iface)
@@ -27,14 +28,13 @@ class MinimalPlugin:
         self.widget = None
         self.action = None
 
-
     def initGui(self) -> None:
         self.widget = LayerDistDockWidget(self.project, self.iface)
 
         self.action = QAction("LayerDist")
         self.action.setCheckable(True)
         self.actions.append(self.action)
-        
+
         self.widget.setToggleVisibilityAction(self.action)
 
         self.iface.pluginToolBar().addAction(self.action)
@@ -42,7 +42,7 @@ class MinimalPlugin:
         self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.widget)
 
         self.widget.push_run.clicked.connect(self.run)
-        
+
         self.widget.show()
 
     def unload(self):
@@ -50,13 +50,17 @@ class MinimalPlugin:
         del self.action
 
     def run(self):
-        method = "loop" if self.widget.combo_execution_method.currentText() == "Simple" else "spatial_index"
+        method = (
+            "loop"
+            if self.widget.combo_execution_method.currentText() == "Simple"
+            else "spatial_index"
+        )
         dist_alg = CalculateNearestFeatures(
             project=self.project,
             layer_a=self.widget.combo_layer_a.currentLayer(),
             layer_b=self.widget.combo_layer_b.currentLayer(),
             method=method,
-            create_geoms_layer=self.widget.check_link_layer.isChecked()
+            create_geoms_layer=self.widget.check_link_layer.isChecked(),
         )
 
         dist_alg.run()
