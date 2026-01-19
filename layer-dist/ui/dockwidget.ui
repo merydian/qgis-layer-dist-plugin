@@ -24,7 +24,18 @@
        <widget class="QgsMapLayerComboBox" name="combo_layer_b"/>
       </item>
       <item>
-       <widget class="QComboBox" name="combo_execution_method"/>
+       <widget class="QComboBox" name="combo_execution_method">
+        <item>
+         <property name="text">
+          <string>Simple</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Optimized</string>
+         </property>
+        </item>
+       </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="check_link_layer">
@@ -80,7 +91,7 @@
    </layout>
   </widget>
  </widget>
-  <customwidgets>
+ <customwidgets>
   <customwidget>
    <class>QgsMapLayerComboBox</class>
    <extends>QComboBox</extends>
