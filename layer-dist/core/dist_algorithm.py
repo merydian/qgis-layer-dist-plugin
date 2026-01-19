@@ -31,6 +31,13 @@ class CalculateNearestFeatures(QObject):
         self.create_geoms_layer = create_geoms_layer
 
     def get_distances_loop(self) -> list[DistanceAttribute]:
+        """
+        Calculates distances using a simple loop over features.
+        
+        :param self: Description
+        :return: Description
+        :rtype: list[DistanceAttribute]
+        """
         attributes = []
 
         for feat_a in self.layer_a.getFeatures():
@@ -56,6 +63,13 @@ class CalculateNearestFeatures(QObject):
         return attributes
 
     def get_distances_spatial_index(self) -> list[DistanceAttribute]:
+        """
+        Calculates distances using a spatial index.
+        
+        :param self: Description
+        :return: Description
+        :rtype: list[DistanceAttribute]
+        """
         layer_b_idx = QgsSpatialIndex(
             self.layer_b.getFeatures(), flags=QgsSpatialIndex.FlagStoreFeatureGeometries
         )
@@ -90,7 +104,13 @@ class CalculateNearestFeatures(QObject):
 
         return attributes
 
-    def create_distances_layer(self, attributes):
+    def create_distances_layer(self, attributes) -> QgsVectorLayer:
+        """
+        Creates a memory layer with distance attributes.
+        
+        :param self: Description
+        :param attributes: Description
+        """
         layer_out_name = "nearest_features"
 
         geom_type = (
@@ -111,13 +131,25 @@ class CalculateNearestFeatures(QObject):
 
         return layer_out
 
-    def get_point_geometry(self, geometry):
+    def get_point_geometry(self, geometry) -> QgsGeometry:
+        """
+        Converts geometry to point geometry if necessary.
+        
+        :param self: Description
+        :param geometry: Description
+        """
         if geometry.type() == QgsWkbTypes.PointGeometry:
             return geometry
         elif geometry.type() == QgsWkbTypes.PolygonGeometry:
             return geometry.centroid()
 
-    def create_dist_geometries_layer(self, attributes):
+    def create_dist_geometries_layer(self, attributes) -> QgsVectorLayer:
+        """
+        Creates a memory layer with line geometries representing distances.
+        
+        :param self: Description
+        :param attributes: Description
+        """
         uri = f"linestring?crs=epsg:{self.layer_a.crs().postgisSrid()}"
         layer_out = QgsVectorLayer(uri, "nearest_features_lines", "memory")
 
@@ -134,7 +166,12 @@ class CalculateNearestFeatures(QObject):
 
         return layer_out
 
-    def run(self):
+    def run(self) -> None:
+        """
+        Runs the whole distance calculation process, can be used in the main GUI application.
+        
+        :param self: Description
+        """
         start_time = time.time()
 
         if self.method == "loop":
@@ -156,13 +193,13 @@ class CalculateNearestFeatures(QObject):
         self.log_time(start_time, end_time)
         self.log(f"Number of features processed: {len(attributes)}\n")
 
-    def log(self, message):
+    def log(self, message) -> None:
         self.log_message.emit(message)
 
-    def log_time(self, start_time, end_time):
+    def log_time(self, start_time, end_time) -> None:
         elapsed = end_time - start_time
         self.log_message.emit(f"Elapsed time: {elapsed:.2f} seconds")
 
-    def log_stats(self, num_features):
+    def log_stats(self, num_features) -> None:
         stats = f"Total features processed: {num_features}"
         self.new_stats.emit(stats)
