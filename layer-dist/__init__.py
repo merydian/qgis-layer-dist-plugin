@@ -24,7 +24,6 @@ class DistancePlugin:
     def __init__(self, iface):
         self.iface = iface
         self.project = QgsProject.instance()
-        self.actions = []
         self.widget = None
         self.action = None
 
@@ -33,7 +32,6 @@ class DistancePlugin:
 
         self.action = QAction("LayerDist")
         self.action.setCheckable(True)
-        self.actions.append(self.action)
 
         self.widget.setToggleVisibilityAction(self.action)
 
