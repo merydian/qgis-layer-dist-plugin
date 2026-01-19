@@ -1,6 +1,5 @@
 import time
-from qgis.core import QgsFeature, QgsVectorLayer, QgsWkbTypes, QgsSpatialIndex
-
+from qgis.core import QgsFeature, QgsVectorLayer, QgsWkbTypes, QgsSpatialIndex, QgsGeometry
 class DistanceAttribute:
     def __init__(self, geom_a, geom_b, nearest_id, distance):
         self.geom_a = geom_a
@@ -22,17 +21,15 @@ class CalculateNearestFeatures:
         
         for feat_a in self.layer_a.getFeatures():
             geom_a = feat_a.geometry()
-            if self.layer_a.geometryType() == QgsWkbTypes.PolygonGeometry:
-                point_geom_a = geom_a.centroid()
-            else:
-                point_geom_a = geom_a
+            point_geom_a = self.get_point_geometry(geom_a)
             
             dists = {}
 
             for feat_b in self.layer_b.getFeatures():
                 geom_b = feat_b.geometry()
+                point_geom_b = self.get_point_geometry(geom_b)
 
-                dist = point_geom_a.distance(geom_b)
+                dist = point_geom_a.distance(point_geom_b)
                 dists[dist] = feat_b.id()
             
             nearest_id = dists[min(dists.keys())]
@@ -96,8 +93,11 @@ class CalculateNearestFeatures:
 
         return layer_out        
 
-    def create_dist_geometries_layer(self, geometries):
-        pass
+    def get_point_geometry(self, geometry):
+        if geometry.type() == QgsWkbTypes.PointGeometry:
+            return geometry
+        elif geometry.type() == QgsWkbTypes.PolygonGeometry:
+            return geometry.centroid()
 
     def run(self):
         start_time = time.time()
