@@ -199,6 +199,8 @@ class CalculateNearestFeatures(QObject):
         end_time = time.time()
         self.log_time(start_time, end_time)
         self.log(f"Number of features processed: {len(attributes)}\n")
+        
+        assert len(attributes) == self.layer_a.featureCount()
 
     def log(self, message) -> None:
         self.log_message.emit(message)
