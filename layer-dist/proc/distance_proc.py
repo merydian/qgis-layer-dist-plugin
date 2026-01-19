@@ -15,6 +15,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsWkbTypes,
     QgsFeature,
+    QgsGeometry,
 )
 from qgis.PyQt.QtCore import QVariant
 from typing import Dict, Any, List
@@ -29,6 +30,7 @@ class DistanceProcessingAlgorithm(QgsProcessingAlgorithm):
         self.METHOD = "METHOD"
         self.CREATE_GEOMS_LAYER = "CREATE_GEOMS_LAYER"
         self.OUTPUT = "OUTPUT"
+        self.LINES_LAYER = "LINES_LAYER"
 
         self.PARAMETERS: List = [
                 QgsProcessingParameterFeatureSource(
@@ -53,6 +55,10 @@ class DistanceProcessingAlgorithm(QgsProcessingAlgorithm):
                 QgsProcessingParameterFeatureSink(
                     name=self.OUTPUT,
                     description="Output layer with distances",
+                ),
+                QgsProcessingParameterFeatureSink(
+                    name=self.LINES_LAYER,
+                    description="Output layer with geometries",
                 ),
             ]
         
@@ -102,6 +108,16 @@ class DistanceProcessingAlgorithm(QgsProcessingAlgorithm):
             QgsCoordinateReferenceSystem.fromEpsgId(4326),
         )
 
+        (sink_lines, dest_id_lines) = self.parameterAsSink(
+            parameters,
+            self.LINES_LAYER,
+            context,
+            QgsFields(),
+            QgsWkbTypes.Type.LineString,
+            QgsCoordinateReferenceSystem.fromEpsgId(4326),
+        )
+
+        # Fill sink with data
         if method == "Simple":
             attributes = dist_alg.get_distances_loop()
         else:
@@ -113,10 +129,22 @@ class DistanceProcessingAlgorithm(QgsProcessingAlgorithm):
             feat.setAttributes([attr.nearest_id, attr.distance, method])
             sink.addFeature(feat)
 
-        # if create_geoms_layer:
-            # return {self.OUTPUT: (dest_id, geoms_layer.id())}
-        # else:
-        return {self.OUTPUT: dest_id}
+        # If geometries layer is requested create line geometries
+        if create_geoms_layer:
+            for attr in attributes:
+                line_feat = QgsFeature()
+                point_geom_a = dist_alg.get_point_geometry(attr.geom_a).asPoint()
+                point_geom_b = dist_alg.get_point_geometry(attr.geom_b).asPoint()
+                line_geom = QgsGeometry.fromPolylineXY(
+                    [point_geom_a, point_geom_b]
+                )
+                line_feat.setGeometry(line_geom)
+                sink_lines.addFeature(line_feat)
+
+        if create_geoms_layer:
+            return {self.OUTPUT: (dest_id, dest_id_lines)}
+        else:
+            return {self.OUTPUT: dest_id}
     
     def displayName(self) -> str:
         return "Calculate Nearest Features Distance"
