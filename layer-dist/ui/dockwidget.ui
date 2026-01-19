@@ -18,10 +18,10 @@
     <item>
      <layout class="QVBoxLayout" name="layout_main">
       <item>
-       <widget class="QComboBox" name="combo_layer_a"/>
+       <widget class="QgsMapLayerComboBox" name="combo_layer_a"/>
       </item>
       <item>
-       <widget class="QComboBox" name="combo_layer_b"/>
+       <widget class="QgsMapLayerComboBox" name="combo_layer_b"/>
       </item>
       <item>
        <widget class="QComboBox" name="combo_execution_method"/>
@@ -80,6 +80,14 @@
    </layout>
   </widget>
  </widget>
+  <customwidgets>
+  <customwidget>
+   <class>QgsMapLayerComboBox</class>
+   <extends>QComboBox</extends>
+   <header>qgis.gui</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
