@@ -17,10 +17,10 @@ from .core.dist_algorithm import CalculateNearestFeatures
 
 
 def classFactory(iface):
-    return MinimalPlugin(iface)
+    return DistancePlugin(iface)
 
 
-class MinimalPlugin:
+class DistancePlugin:
     def __init__(self, iface):
         self.iface = iface
         self.project = QgsProject.instance()
