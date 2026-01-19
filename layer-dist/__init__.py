@@ -10,6 +10,9 @@
 #---------------------------------------------------------------------
 
 from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from qgis.PyQt.QtCore import Qt
+from .gui.dock import LayerDistDockWidget
+from qgis.core import QgsProject
 
 def classFactory(iface):
     return MinimalPlugin(iface)
@@ -18,11 +21,26 @@ def classFactory(iface):
 class MinimalPlugin:
     def __init__(self, iface):
         self.iface = iface
+        self.project = QgsProject.instance()
+        self.actions = []
+        self.widget = None
+        self.action = None
 
-    def initGui(self):
-        self.action = QAction('Go!', self.iface.mainWindow())
-        self.action.triggered.connect(self.run)
-        self.iface.addToolBarIcon(self.action)
+
+    def initGui(self) -> None:
+        self.widget = LayerDistDockWidget(self.project, self.iface)
+
+        self.action = QAction("LayerDist")
+        self.action.setCheckable(True)
+        self.actions.append(self.action)
+        
+        self.widget.setToggleVisibilityAction(self.action)
+
+        self.iface.pluginToolBar().addAction(self.action)
+
+        self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.widget)
+        
+        self.widget.show()
 
     def unload(self):
         self.iface.removeToolBarIcon(self.action)
