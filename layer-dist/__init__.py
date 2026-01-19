@@ -9,10 +9,11 @@
 # (at your option) any later version.
 #---------------------------------------------------------------------
 
-from qgis.PyQt.QtWidgets import QAction, QMessageBox
+from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtCore import Qt
 from .gui.dock import LayerDistDockWidget
 from qgis.core import QgsProject
+from .core.dist_algorithm import CalculateNearestFeatures
 
 def classFactory(iface):
     return MinimalPlugin(iface)
@@ -49,4 +50,13 @@ class MinimalPlugin:
         del self.action
 
     def run(self):
-        QMessageBox.information(None, 'Minimal plugin', 'Do something useful here')
+        method = "loop" if self.widget.combo_execution_method.currentText() == "Simple" else "spatial_index"
+        dist_alg = CalculateNearestFeatures(
+            project=self.project,
+            layer_a=self.widget.combo_layer_a.currentLayer(),
+            layer_b=self.widget.combo_layer_b.currentLayer(),
+            method=method,
+            create_geoms_layer=self.widget.check_link_layer.isChecked()
+        )
+
+        dist_alg.run()
