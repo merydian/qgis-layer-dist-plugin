@@ -1,10 +1,16 @@
 import time
+
+from shapely import points
+
+from shapely import points
 from qgis.core import (
     QgsFeature,
     QgsVectorLayer,
     QgsWkbTypes,
     QgsSpatialIndex,
     QgsGeometry,
+    QgsDistanceArea,
+    QgsCoordinateReferenceSystem,
 )
 from qgis.PyQt.QtCore import pyqtSignal
 from qgis.PyQt.QtCore import QObject
@@ -50,7 +56,7 @@ class CalculateNearestFeatures(QObject):
                 geom_b = feat_b.geometry()
                 point_geom_b = self.get_point_geometry(geom_b)
 
-                dist = point_geom_a.distance(point_geom_b)
+                dist = self.get_dist(point_geom_a, point_geom_b)
                 dists[dist] = feat_b.id()
 
             nearest_id = dists[min(dists.keys())]
@@ -61,6 +67,28 @@ class CalculateNearestFeatures(QObject):
             attributes.append(attr)
 
         return attributes
+
+    def get_dist(self, geom_a, geom_b) -> float:
+        """
+        Calculates distance between two geometries, considering CRS.
+        
+        :param self: Description
+        :param geom_a: Description
+        :param geom_b: Description
+        :return: Description
+        :rtype: float
+        """
+        if self.layer_a.crs().isGeographic() or self.layer_b.crs().isGeographic():
+            da = QgsDistanceArea()
+            da.setEllipsoid('WGS84')
+            da.setSourceCrs(QgsCoordinateReferenceSystem(self.layer_a.crs().authid()), self.project.transformContext())
+
+            dist = da.measureLine(geom_a.asPoint(), geom_b.asPoint())
+
+        else:
+            dist = geom_a.distance(geom_b)
+
+        return dist
 
     def get_distances_spatial_index(self) -> list[DistanceAttribute]:
         """
@@ -97,7 +125,7 @@ class CalculateNearestFeatures(QObject):
         feat_b = self.layer_b.getFeature(nearest_id)
         geom_b = feat_b.geometry()
 
-        dist = point_geom_a.distance(geom_b)
+        dist = self.get_dist(point_geom_a, self.get_point_geometry(geom_b))
 
         geom_b_nearest = self.layer_b.getFeature(nearest_id).geometry()
 
