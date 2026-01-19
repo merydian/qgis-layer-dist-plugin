@@ -63,4 +63,7 @@ class MinimalPlugin:
             create_geoms_layer=self.widget.check_link_layer.isChecked(),
         )
 
+        dist_alg.log_message.connect(self.widget.append_log)
+        dist_alg.new_stats.connect(self.widget.update_stats)
+
         dist_alg.run()

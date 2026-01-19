@@ -6,6 +6,8 @@ from qgis.core import (
     QgsSpatialIndex,
     QgsGeometry,
 )
+from qgis.PyQt.QtCore import pyqtSignal
+from qgis.PyQt.QtCore import QObject
 
 
 class DistanceAttribute:
@@ -16,8 +18,12 @@ class DistanceAttribute:
         self.distance = distance
 
 
-class CalculateNearestFeatures:
+class CalculateNearestFeatures(QObject):
+    log_message = pyqtSignal(str)
+    new_stats = pyqtSignal(str)
+
     def __init__(self, project, layer_a, layer_b, method, create_geoms_layer):
+        super().__init__()
         self.project = project
         self.layer_a = layer_a
         self.layer_b = layer_b
@@ -151,8 +157,12 @@ class CalculateNearestFeatures:
         self.log(f"Number of features processed: {len(attributes)}\n")
 
     def log(self, message):
-        print(message)
+        self.log_message.emit(message)
 
     def log_time(self, start_time, end_time):
         elapsed = end_time - start_time
-        self.log(f"Elapsed time: {elapsed:.2f} seconds")
+        self.log_message.emit(f"Elapsed time: {elapsed:.2f} seconds")
+
+    def log_stats(self, num_features):
+        stats = f"Total features processed: {num_features}"
+        self.new_stats.emit(stats)

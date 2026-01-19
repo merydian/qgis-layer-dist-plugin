@@ -15,3 +15,9 @@ class LayerDistDockWidget(DOCK_WIDGET, QgsDockWidget):
         super(LayerDistDockWidget, self).__init__()
         self.setupUi(self)
         self.setObjectName("LayerDistDockWidget")
+
+    def append_log(self, message: str) -> None:
+        self.text_log.append(message)
+    
+    def update_stats(self, stats: str) -> None:
+        self.text_stats.setPlainText(stats)
