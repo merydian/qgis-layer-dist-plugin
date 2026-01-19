@@ -29,7 +29,6 @@ class CalculateNearestFeatures(QObject):
         self.layer_b = layer_b
         self.method = method
         self.create_geoms_layer = create_geoms_layer
-        self.nearest_neighbor_count = 5
 
     def get_distances_loop(self) -> list[DistanceAttribute]:
         """
@@ -85,19 +84,13 @@ class CalculateNearestFeatures(QObject):
             else:
                 point_geom_a = geom_a
 
-            candidate_ids = layer_b_idx.nearestNeighbor(point_geom_a, self.nearest_neighbor_count)
+            nearest_id = layer_b_idx.nearestNeighbor(point_geom_a, 1)[0]
 
-            dists = {}
+            feat_b = self.layer_b.getFeature(nearest_id)
+            geom_b = feat_b.geometry()
 
-            for fid in candidate_ids:
-                feat_b = self.layer_b.getFeature(fid)
-                geom_b = feat_b.geometry()
+            dist = point_geom_a.distance(geom_b)
 
-                dist = point_geom_a.distance(geom_b)
-                dists[dist] = feat_b.id()
-
-            nearest_id = dists[min(dists.keys())]
-            dist = min(dists.keys())
             geom_b_nearest = self.layer_b.getFeature(nearest_id).geometry()
 
             attr = DistanceAttribute(geom_a, geom_b_nearest, nearest_id, dist)
