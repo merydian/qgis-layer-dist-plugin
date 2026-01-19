@@ -172,6 +172,13 @@ class CalculateNearestFeatures(QObject):
         
         :param self: Description
         """
+        if not self.layer_a or not self.layer_b:
+            self.log("Error: Both Layer A and Layer B must be selected.\n")
+            return
+        if self.layer_a == self.layer_b:
+            self.log("Error: Layer A and Layer B must be different layers.\n")
+            return
+
         start_time = time.time()
 
         if self.method == "loop":
