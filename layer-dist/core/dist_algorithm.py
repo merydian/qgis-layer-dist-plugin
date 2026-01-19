@@ -1,5 +1,5 @@
 import time
-from qgis.core import QgsFeature, QgsVectorLayer, QgsWkbTypes
+from qgis.core import QgsFeature, QgsVectorLayer, QgsWkbTypes, QgsSpatialIndex
 
 class DistanceAttribute:
     def __init__(self, geom_a, geom_b, nearest_id, distance):
@@ -45,7 +45,39 @@ class CalculateNearestFeatures:
         return attributes
 
     def get_distances_spatial_index(self) -> list[DistanceAttribute]:
-        return None
+        layer_b_idx = QgsSpatialIndex(self.layer_b.getFeatures(), flags=QgsSpatialIndex.FlagStoreFeatureGeometries)
+
+        attributes = []
+
+        
+        
+        for feat_a in self.layer_a.getFeatures():
+            geom_a = feat_a.geometry()
+            
+            if self.layer_a.geometryType() == QgsWkbTypes.PolygonGeometry:
+                point_geom_a = geom_a.centroid()
+            else:
+                point_geom_a = geom_a
+
+            candidate_ids = layer_b_idx.nearestNeighbor(point_geom_a, 5)
+            
+            dists = {}
+
+            for fid in candidate_ids:
+                feat_b = self.layer_b.getFeature(fid)
+                geom_b = feat_b.geometry()
+
+                dist = point_geom_a.distance(geom_b)
+                dists[dist] = feat_b.id()
+            
+            nearest_id = dists[min(dists.keys())]
+            dist = min(dists.keys())
+            geom_b_nearest = self.layer_b.getFeature(nearest_id).geometry()
+            
+            attr = DistanceAttribute(geom_a, geom_b_nearest, nearest_id, dist)
+            attributes.append(attr)
+        
+        return attributes
 
     def create_distances_layer(self, attributes):
         layer_out_name = "nearest_features"
@@ -87,6 +119,7 @@ class CalculateNearestFeatures:
 
         end_time = time.time()
         self.log_time(start_time, end_time)
+        self.log(f"Number of features processed: {len(attributes)}\n")
 
     def log(self, message):
         print(message)
