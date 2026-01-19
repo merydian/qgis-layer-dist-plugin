@@ -39,6 +39,8 @@ class MinimalPlugin:
         self.iface.pluginToolBar().addAction(self.action)
 
         self.iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.widget)
+
+        self.widget.push_run.clicked.connect(self.run)
         
         self.widget.show()
 
