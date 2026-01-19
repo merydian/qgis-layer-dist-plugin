@@ -12,7 +12,8 @@
 from qgis.PyQt.QtWidgets import QAction
 from qgis.PyQt.QtCore import Qt
 from .gui.dock import LayerDistDockWidget
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsApplication
+from .proc.provider import Provider
 from .core.dist_algorithm import CalculateNearestFeatures
 
 
@@ -27,7 +28,13 @@ class DistancePlugin:
         self.widget = None
         self.action = None
 
+    def initProcessing(self):
+        self.provider = Provider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
+
     def initGui(self) -> None:
+        self.initProcessing()
+
         self.widget = LayerDistDockWidget(self.project, self.iface)
 
         self.action = QAction("LayerDist")
@@ -46,6 +53,7 @@ class DistancePlugin:
     def unload(self):
         self.iface.removeToolBarIcon(self.action)
         del self.action
+        QgsApplication.processingRegistry().removeProvider(self.provider)
 
     def run(self):
         method = (

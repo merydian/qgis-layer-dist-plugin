@@ -8,3 +8,4 @@ author=Till Frankenbach
 email=till.frankenbach@gmail.com
 repository=https://github.com/merydian/qgis-layer-dist-plugin
 supportsQt6=True
+hasProcessingProvider=yes
